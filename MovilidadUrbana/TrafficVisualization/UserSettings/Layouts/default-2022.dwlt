@@ -247,7 +247,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 50}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 73
+  controlID: 92
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -744,6 +744,19 @@ MonoBehaviour:
       layout: 4
       size: {x: 0, y: 0}
       sizeOverriden: 0
+    - dockPosition: 1
+      containerId: overlay-container--right
+      floating: 0
+      collapsed: 0
+      displayed: 1
+      snapOffset: {x: 48, y: 48}
+      snapOffsetDelta: {x: 0, y: 0}
+      snapCorner: 0
+      id: UnityEditor.SceneViewCameraOverlay
+      index: 8
+      layout: 4
+      size: {x: 0, y: 0}
+      sizeOverriden: 0
     m_OverlaysVisible: 1
   m_WindowGUID: 513f8cde464abf343a8b92b3cd2cf47a
   m_Gizmos: 1
@@ -755,9 +768,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 18.843866, y: -0.2988168, z: 22.75222}
+    m_Target: {x: 7.773001, y: 13.355717, z: -1.5261085}
     speed: 2
-    m_Value: {x: 18.843866, y: -0.2988168, z: 22.75222}
+    m_Value: {x: 7.773001, y: 13.355717, z: -1.5261085}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -803,13 +816,13 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.11714734, y: -0.72745126, z: 0.12829977, w: 0.66382533}
+    m_Target: {x: 0.38936514, y: -0.5884913, z: 0.38520977, w: 0.594744}
     speed: 2
-    m_Value: {x: 0.11733769, y: -0.7264425, z: 0.12812175, w: 0.66490453}
+    m_Value: {x: 0.38909006, y: -0.5896825, z: 0.38725448, w: 0.5923827}
   m_Size:
-    m_Target: 3.2293673
+    m_Target: 10.450382
     speed: 2
-    m_Value: 3.2293673
+    m_Value: 10.000366
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -905,9 +918,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 7a24ffff
-      m_LastClickedID: -56198
-      m_ExpandedIDs: 688cffff26f9ffff32fbffff1c4e0000
+      m_SelectedIDs: 
+      m_LastClickedID: 0
+      m_ExpandedIDs: dcf7ffffa8f9ffff32fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -923,7 +936,7 @@ MonoBehaviour:
         m_IsRenaming: 0
         m_OriginalEventType: 11
         m_IsRenamingFilename: 0
-        m_ClientGUIView: {fileID: 0}
+        m_ClientGUIView: {fileID: 9}
       m_SearchString: 
     m_ExpandedScenes: []
     m_CurrenRootInstanceID: 0
@@ -976,7 +989,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Prefabs
+    - Assets/Scripts
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -984,30 +997,30 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Prefabs
+  - Assets/Scripts
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\mau\Documents\repositorios\Actividades\activities_TC2008B\MovilidadUrbana\TrafficVisualization
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 79}
-    m_SelectedIDs: 804c0000
-    m_LastClickedID: 19584
-    m_ExpandedIDs: 00000000724c0000864c000000ca9a3bffffff7f
+    m_SelectedIDs: 8a4c0000
+    m_LastClickedID: 19594
+    m_ExpandedIDs: 00000000784c000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: Prefabs
-      m_OriginalName: Prefabs
+      m_Name: 
+      m_OriginalName: 
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 19584
+      m_UserData: 0
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 0
+      m_OriginalEventType: 11
       m_IsRenamingFilename: 1
       m_ClientGUIView: {fileID: 11}
     m_SearchString: 
@@ -1021,7 +1034,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000724c0000
+    m_ExpandedIDs: 00000000784c0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

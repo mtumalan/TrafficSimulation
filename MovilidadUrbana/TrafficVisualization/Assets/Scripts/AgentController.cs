@@ -1,6 +1,6 @@
 ﻿// TC2008B. Sistemas Multiagentes y Gráficas Computacionales
-// C# client to interact with Python. Based on the code provided by Sergio Ruiz.
-// Octavio Navarro. October 2023
+// C# client to interact with Python. Based on the code provided by Octavio Navarro.
+// Mau Tumalán, November 2023
 
 using System;
 using System.Collections;
@@ -79,15 +79,18 @@ public class AgentController : MonoBehaviour
     string serverUrl = "http://localhost:8585";
     string getAgentsEndpoint = "/getAgents";
     string getObstaclesEndpoint = "/getObstacles";
+    string getTrafficLightsEndpoint = "/getTrafficLights";
+    string getRoadsEndpoint = "/getRoads";
+    string getDestinationsEndpoint = "/getDestinations";
     string sendConfigEndpoint = "/init";
     string updateEndpoint = "/update";
-    AgentsData agentsData, obstacleData;
+    AgentsData agentsData, obstacleData, trafficLightData, roadData, destinationData;
     Dictionary<string, GameObject> agents;
     Dictionary<string, Vector3> prevPositions, currPositions;
 
     bool updated = false, started = false;
 
-    public GameObject agentPrefab, obstaclePrefab, floor;
+    public GameObject agentPrefab, obstaclePrefab, trafficlightPrefab, roadPrefab, destinationPrefab, floor;
     public int NAgents, width, height;
     public float timeToUpdate = 5.0f;
     private float timer, dt;
@@ -96,6 +99,9 @@ public class AgentController : MonoBehaviour
     {
         agentsData = new AgentsData();
         obstacleData = new AgentsData();
+        trafficLightData = new AgentsData();
+        roadData = new AgentsData();
+        destinationData = new AgentsData();
 
         prevPositions = new Dictionary<string, Vector3>();
         currPositions = new Dictionary<string, Vector3>();
@@ -187,6 +193,9 @@ public class AgentController : MonoBehaviour
             // Once the configuration has been sent, it launches a coroutine to get the agents data.
             StartCoroutine(GetAgentsData());
             StartCoroutine(GetObstacleData());
+            StartCoroutine(GetTrafficLightData());
+            StartCoroutine(GetRoadData());
+            StartCoroutine(GetDestinationData());
         }
     }
 
@@ -244,6 +253,66 @@ public class AgentController : MonoBehaviour
             foreach(AgentData obstacle in obstacleData.positions)
             {
                 Instantiate(obstaclePrefab, new Vector3(obstacle.x, obstacle.y, obstacle.z), Quaternion.identity);
+            }
+        }
+    }
+
+    IEnumerator GetTrafficLightData() 
+    {
+        UnityWebRequest www = UnityWebRequest.Get(serverUrl + getTrafficLightsEndpoint);
+        yield return www.SendWebRequest();
+ 
+        if (www.result != UnityWebRequest.Result.Success)
+            Debug.Log(www.error);
+        else 
+        {
+            trafficLightData = JsonUtility.FromJson<AgentsData>(www.downloadHandler.text);
+
+            Debug.Log(trafficLightData.positions);
+
+            foreach(AgentData trafficLight in trafficLightData.positions)
+            {
+                Instantiate(trafficlightPrefab, new Vector3(trafficLight.x, trafficLight.y, trafficLight.z), Quaternion.identity);
+            }
+        }
+    }
+
+    IEnumerator GetRoadData() 
+    {
+        UnityWebRequest www = UnityWebRequest.Get(serverUrl + getRoadsEndpoint);
+        yield return www.SendWebRequest();
+ 
+        if (www.result != UnityWebRequest.Result.Success)
+            Debug.Log(www.error);
+        else 
+        {
+            roadData = JsonUtility.FromJson<AgentsData>(www.downloadHandler.text);
+
+            Debug.Log(roadData.positions);
+
+            foreach(AgentData road in roadData.positions)
+            {
+                Instantiate(roadPrefab, new Vector3(road.x, road.y, road.z), Quaternion.identity);
+            }
+        }
+    }
+
+    IEnumerator GetDestinationData()
+    {
+        UnityWebRequest www = UnityWebRequest.Get(serverUrl + getDestinationsEndpoint);
+        yield return www.SendWebRequest();
+ 
+        if (www.result != UnityWebRequest.Result.Success)
+            Debug.Log(www.error);
+        else 
+        {
+            destinationData = JsonUtility.FromJson<AgentsData>(www.downloadHandler.text);
+
+            Debug.Log(destinationData.positions);
+
+            foreach(AgentData destination in destinationData.positions)
+            {
+                Instantiate(destinationPrefab, new Vector3(destination.x,destination.y,destination.z), Quaternion.identity);
             }
         }
     }

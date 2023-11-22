@@ -121,7 +121,22 @@ class Car(Agent):
         Determines if the agent can move in the direction that was chosen
         """        
         if self.path and self.pos in self.path: # If the path is set and the current position is in the path,
-            next_pos = self.path.get(self.pos) # Get the next position
+            if isinstance(self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]], list):
+                # Itera sobre los agentes en la lista
+                for agent_in_cell in self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]]:
+                    if type(agent_in_cell) == Car:
+                        next_pos = self.pos
+                    elif type(agent_in_cell) == Traffic_Light:
+                        if agent_in_cell.state == False:
+                            next_pos = self.pos
+                        else:
+                            next_pos = self.path.get(self.pos) # Get the next position
+                    else:
+                        next_pos = self.path.get(self.pos) # Get the next position
+            #isvalid = self.is_front_valid(self,sh)
+            #if any(isinstance(agent, Traffic_Light) for agent in neighbors_in_front):
+            #    next_pos = self.pos # Get the next position
+            #else:
             #print(f"Current Position: {self.pos}, Next Position: {next_pos}, Path: {self.path}")
             if next_pos is not None: # If the next position is not None,
                 self.model.grid.move_agent(self, next_pos) # Move the agent to the next position
@@ -131,6 +146,18 @@ class Car(Agent):
                     self.model.remove_car(self) # Remove the car from the model
             else: # If the next position is None,
                 print("No valid next position found.") 
+
+    def is_front_valid(self, next):
+        neighbor_info = []
+        cell_content = self.model.grid[next[0]][next[1]]
+        # Verifica si la celda contiene una lista
+        if isinstance(cell_content, list):
+            # Itera sobre los agentes en la lista
+            for agent_in_cell in cell_content:
+
+                # Agrega una tupla a la lista con la posición y el tipo de agente
+                neighbor_info.append(((next[0], next[1]), type(agent_in_cell)))
+        return 1
         
     def get_direction(self, current_pos, next_pos):
         """

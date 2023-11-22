@@ -16,6 +16,7 @@ class CityModel(Model):
 
         # Load the map dictionary. The dictionary maps the characters in the map file to the corresponding agent.
         mapAbsPath = os.path.abspath("./city_files/mapDictionary.json")
+        print(mapAbsPath)
         dataDictionary = json.load(open(mapAbsPath))
 
         self.traffic_lights = []

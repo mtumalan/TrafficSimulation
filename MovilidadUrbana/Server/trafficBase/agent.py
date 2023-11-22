@@ -32,7 +32,6 @@ def a_star_search(graph, start, goal, pathclear):
                 priority = new_cost + heuristic(goal, next) # Calculate the priority
                 heapq.heappush(obstacles, (priority, next)) # Add the neighbor to the queue
                 wherefrom[next] = current # Update the path
-                
     path = {} # Dictionary to keep track of the path
     current = goal # Start at the goal
     while current != start: # While the start is not reached,

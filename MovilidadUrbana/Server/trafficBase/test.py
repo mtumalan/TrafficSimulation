@@ -1,1 +1,0 @@
-open("city_files/mapDictionary.json")

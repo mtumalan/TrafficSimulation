@@ -38,6 +38,9 @@ def agent_portrayal(agent):
         portrayal["Layer"] = 2
         portrayal["w"] = 0.8
         portrayal["h"] = 0.8
+        portrayal["text"] = str(agent.greediness)
+        portrayal["text_color"] = "white"
+        portrayal["text_scale"] = 12
 
     return portrayal
 

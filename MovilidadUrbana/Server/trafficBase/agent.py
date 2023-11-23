@@ -1,5 +1,6 @@
 from mesa import Agent
 import heapq
+import random
 
 def heuristic(a, b):
     """
@@ -63,6 +64,7 @@ class Car(Agent):
         self.destination = destination
         self.spawn = spawn
         self.path = None
+        self.greediness = random.randint(0, 100)
     
     def initialize_path(self):
         """
@@ -122,6 +124,7 @@ class Car(Agent):
         if self.path and self.pos in self.path: # If the path is set and the current position is in the path,
             if isinstance(self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]], list):
                 # Itera sobre los agentes en la lista
+
                 for agent_in_cell in self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]]:
                     if type(agent_in_cell) == Car:
                         next_pos = self.pos
@@ -145,6 +148,7 @@ class Car(Agent):
                     self.model.remove_car(self) # Remove the car from the model
             else: # If the next position is None,
                 print("No valid next position found.") 
+    #def lane_change():
 
     def is_front_valid(self, next):
         neighbor_info = []

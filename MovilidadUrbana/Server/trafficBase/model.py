@@ -15,13 +15,13 @@ class CityModel(Model):
     def __init__(self, N):
 #C:\Users\carlo\OneDrive\Escritorio\2023\ITESM\MULTIAGENTES\PROYECTOR\activities_TC2008B\MovilidadUrbana\Server\trafficBase\city_files
         # Load the map dictionary. The dictionary maps the characters in the map file to the corresponding agent.
-        mapAbsPath = os.path.abspath("MovilidadUrbana/Server/trafficBase/city_files/mapDictionary.json")
+        mapAbsPath = os.path.abspath("city_files/mapDictionary.json")#("MovilidadUrbana/Server/trafficBase/city_files/mapDictionary.json")
         dataDictionary = json.load(open(mapAbsPath))
 
         self.traffic_lights = []
 
         # Load the map file. The map file is a text file where each character represents an agent.
-        with open('MovilidadUrbana/Server/trafficBase/city_files/2022_base.txt') as baseFile:
+        with open("city_files/2022_base.txt") as baseFile:#('MovilidadUrbana/Server/trafficBase/city_files/2022_base.txt') as baseFile:
             lines = baseFile.readlines()
             self.width = len(lines[0])-1
             self.height = len(lines)

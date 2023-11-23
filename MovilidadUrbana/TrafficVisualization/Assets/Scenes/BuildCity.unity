@@ -215,63 +215,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: 0, z: 0}
---- !u!1001 &375699592
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5947160583606412953, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-      propertyPath: m_Name
-      value: floor
-      objectReference: {fileID: 0}
-    - target: {fileID: 7170560306078013808, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.9090233
-      objectReference: {fileID: 0}
-    - target: {fileID: 7170560306078013808, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7170560306078013808, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.28620273
-      objectReference: {fileID: 0}
-    - target: {fileID: 7170560306078013808, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7170560306078013808, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7170560306078013808, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7170560306078013808, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7170560306078013808, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7170560306078013808, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7170560306078013808, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
 --- !u!1 &395527429
 GameObject:
   m_ObjectHideFlags: 0
@@ -395,15 +338,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 983bc179e80f15347a79dd7b044746e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agentsData:
+    positions: []
+  obstacleData:
+    positions: []
+  trafficLightData:
+    positions: []
+  roadData:
+    positions: []
+  destinationData:
+    positions: []
   agentPrefab: {fileID: 993549348249905, guid: 563375cb179ab4d4d8c0ce2bfc651964, type: 3}
   obstaclePrefab: {fileID: 33555395739272859, guid: 10a584233fb38a918af771ddce837268, type: 3}
   trafficlightPrefab: {fileID: 8102729382312259521, guid: ec03db3fda9c46458bf4fb4f61cc11bd, type: 3}
   roadPrefab: {fileID: 3240343348373693069, guid: 646fc54ff3078ce94bbdbd0f0d4c4a05, type: 3}
   destinationPrefab: {fileID: 919132149155446097, guid: 24378c2376976e955822e95f3a78bd78, type: 3}
-  floor: {fileID: 1525691255}
-  NAgents: 0
-  width: 0
-  height: 0
+  NAgents: 5
+  width: 25
+  height: 25
   timeToUpdate: 5
 --- !u!4 &685606481
 Transform:
@@ -533,11 +485,6 @@ LightingSettings:
   m_PVRTiledBaking: 0
   m_NumRaysToShootPerTexel: -1
   m_RespectSceneVisibilityWhenBakingGI: 0
---- !u!1 &1525691255 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5947160583606412953, guid: 3d48697bd0be2484ba06aef42a59c301, type: 3}
-  m_PrefabInstance: {fileID: 375699592}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -546,4 +493,3 @@ SceneRoots:
   - {fileID: 395527431}
   - {fileID: 1457529884}
   - {fileID: 685606481}
-  - {fileID: 375699592}

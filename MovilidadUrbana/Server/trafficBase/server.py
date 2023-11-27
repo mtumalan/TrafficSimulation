@@ -35,6 +35,8 @@ def agent_portrayal(agent):
     
     if (isinstance(agent, Car)):
         portrayal["Color"] = "black"
+        #if agent.status == True:
+        #    portrayal["Color"] = "red"
         portrayal["Layer"] = 2
         portrayal["w"] = 0.8
         portrayal["h"] = 0.8

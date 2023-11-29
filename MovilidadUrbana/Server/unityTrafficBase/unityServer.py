@@ -20,7 +20,7 @@ def getAgents():
     global cityModel
 
     if request.method == 'GET':
-        carPositions = [{"id": str(car.unique_id), "x": x, "y": 0.5, "z": z}
+        carPositions = [{"id": str(car.unique_id), "x": x, "y": 0, "z": z}
                 for x in range(cityModel.grid.width)
                 for z in range(cityModel.grid.height)
                 for car in cityModel.grid.get_cell_list_contents((x, z))
@@ -47,7 +47,7 @@ def getTrafficLights():
     global cityModel
 
     if request.method == 'GET':
-        trafficLightPositions = [{"id": str(trafficLight.unique_id), "x": x, "y":0, "z":z}
+        trafficLightPositions = [{"id": str(trafficLight.unique_id), "x": x, "y":0, "z":z, "state":trafficLight.state}
                                  for x in range(cityModel.grid.width)
                                  for z in range(cityModel.grid.height)
                                  for trafficLight in cityModel.grid.get_cell_list_contents((x, z))

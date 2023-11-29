@@ -34,6 +34,17 @@ public class AgentData
 }
 
 [Serializable]
+public class StreetLightData : AgentData
+{
+    public bool state;
+
+    public StreetLightData(string id, float x, float y, float z, bool state) : base(id, x, y, z)
+    {
+        this.state = state;
+    }
+}
+
+[Serializable]
 
 public class AgentsData
 {
@@ -48,34 +59,17 @@ public class AgentsData
     public AgentsData() => this.positions = new List<AgentData>();
 }
 
+[Serializable]
+public class StreetLightsData
+{
+    public List<StreetLightData> positions;
+
+    public StreetLightsData() => this.positions = new List<StreetLightData>();
+
+}
+
 public class AgentController : MonoBehaviour
 {
-    /*
-    The AgentController class is used to control the agents in the simulation.
-
-    Attributes:
-        serverUrl (string): The url of the server.
-        getAgentsEndpoint (string): The endpoint to get the agents data.
-        getObstaclesEndpoint (string): The endpoint to get the obstacles data.
-        sendConfigEndpoint (string): The endpoint to send the configuration.
-        updateEndpoint (string): The endpoint to update the simulation.
-        agentsData (AgentsData): The data of the agents.
-        obstacleData (AgentsData): The data of the obstacles.
-        agents (Dictionary<string, GameObject>): A dictionary of the agents.
-        prevPositions (Dictionary<string, Vector3>): A dictionary of the previous positions of the agents.
-        currPositions (Dictionary<string, Vector3>): A dictionary of the current positions of the agents.
-        updated (bool): A boolean to know if the simulation has been updated.
-        started (bool): A boolean to know if the simulation has started.
-        agentPrefab (GameObject): The prefab of the agents.
-        obstaclePrefab (GameObject): The prefab of the obstacles.
-        floor (GameObject): The floor of the simulation.
-        NAgents (int): The number of agents.
-        width (int): The width of the simulation.
-        height (int): The height of the simulation.
-        timeToUpdate (float): The time to update the simulation.
-        timer (float): The timer to update the simulation.
-        dt (float): The delta time.
-    */
     string serverUrl = "http://localhost:8585";
     string getAgentsEndpoint = "/getAgents";
     string getObstaclesEndpoint = "/getObstacles";
@@ -84,8 +78,13 @@ public class AgentController : MonoBehaviour
     string getDestinationsEndpoint = "/getDestinations";
     string sendConfigEndpoint = "/init";
     string updateEndpoint = "/update";
-    public AgentsData agentsData, obstacleData, trafficLightData, roadData, destinationData;
+    public AgentsData agentsData;
+    public AgentsData obstacleData;
+    public AgentsData roadData; 
+    public AgentsData destinationData;
+    public StreetLightsData streetLightData;
     Dictionary<string, GameObject> agents;
+    Dictionary<string, GameObject> streetLights;
     Dictionary<string, Vector3> prevPositions, currPositions;
 
     bool updated = false, started = false;
@@ -99,7 +98,7 @@ public class AgentController : MonoBehaviour
     {
         agentsData = new AgentsData();
         obstacleData = new AgentsData();
-        trafficLightData = new AgentsData();
+        streetLightData = new StreetLightsData();
         roadData = new AgentsData();
         destinationData = new AgentsData();
 
@@ -107,7 +106,7 @@ public class AgentController : MonoBehaviour
         currPositions = new Dictionary<string, Vector3>();
 
         agents = new Dictionary<string, GameObject>();
-        Debug.Log(agents);
+        streetLights = new Dictionary<string, GameObject>();
         
         timer = timeToUpdate;
 
@@ -123,28 +122,31 @@ public class AgentController : MonoBehaviour
             updated = false;
             StartCoroutine(UpdateSimulation());
         }
+        else{
+            timer -= Time.deltaTime;
+        }
 
         if (updated)
         {
-            timer -= Time.deltaTime;
             dt = 1.0f - (timer / timeToUpdate);
 
-            // Iterates over the agents to update their positions.
-            // The positions are interpolated between the previous and current positions.
             foreach(var agent in currPositions)
             {
                 Vector3 currentPosition = agent.Value;
                 Vector3 previousPosition = prevPositions[agent.Key];
-
-                Vector3 interpolated = Vector3.Lerp(previousPosition, currentPosition, dt);
-                Vector3 direction = currentPosition - interpolated;
-
-                agents[agent.Key].transform.localPosition = interpolated;
-                if(direction != Vector3.zero) agents[agent.Key].transform.rotation = Quaternion.LookRotation(direction);
+                if(agents.ContainsKey(agent.Key)){
+                agents[agent.Key].GetComponent<MatrixMovement>().SetMovement(previousPosition, currentPosition, dt);
+                }
+                
             }
 
-            // float t = (timer / timeToUpdate);
-            // dt = t * t * ( 3f - 2f*t);
+            foreach(StreetLightData lightData in streetLightData.positions)
+            {
+                if (streetLights.ContainsKey(lightData.id))
+                {
+                    streetLights[lightData.id].GetComponent<StreetLight>().SetState(lightData.state);
+                }
+            }
         }
     }
  
@@ -158,6 +160,7 @@ public class AgentController : MonoBehaviour
         else
         {
             StartCoroutine(GetAgentsData());
+            StartCoroutine(GetTrafficLightData());
         }
     }
 
@@ -185,9 +188,6 @@ public class AgentController : MonoBehaviour
         }
         else
         {
-            Debug.Log("Configuration upload complete!");
-            Debug.Log("Getting Agents positions");
-
             // Once the configuration has been sent, it launches a coroutine to get the agents data.
             StartCoroutine(GetAgentsData());
             StartCoroutine(GetObstacleData());
@@ -211,26 +211,44 @@ public class AgentController : MonoBehaviour
             // Once the data has been received, it is stored in the agentsData variable.
             // Then, it iterates over the agentsData.positions list to update the agents positions.
             agentsData = JsonUtility.FromJson<AgentsData>(www.downloadHandler.text);
-            Debug.Log(agentsData.positions);
 
             foreach(AgentData agent in agentsData.positions)
             {
                 Vector3 newAgentPosition = new Vector3(agent.x, agent.y, agent.z);
+                if(agents.ContainsKey(agent.id)){
+                    Vector3 currentPosition = new Vector3();
+                    if(currPositions.TryGetValue(agent.id, out currentPosition))
+                        prevPositions[agent.id] = currentPosition;
+                    currPositions[agent.id] = newAgentPosition;
+                }
+                else{
+                    prevPositions[agent.id] = newAgentPosition;
+                    agents[agent.id] = Instantiate(agentPrefab, new Vector3(0,0,0) , Quaternion.identity);
+                }
+                //Delete agents that are not in the list agents
+                List<string> keysToRemove = new List<string>();
+                foreach(var agentId in new List<string>(agents.Keys))
+                {
+                    if(!agentsData.positions.Exists(x => x.id == agentId))
+                    {
+                        keysToRemove.Add(agentId);
+                    }
+                }
 
-                    if(agents.ContainsKey(agent.id))
+                foreach (string key in keysToRemove)
+                {
+                    if (agents.TryGetValue(key, out GameObject carAgent))
                     {
-                        Vector3 currentPosition = new Vector3();
-                        if(currPositions.TryGetValue(agent.id, out currentPosition))
-                            prevPositions[agent.id] = currentPosition;
-                        currPositions[agent.id] = newAgentPosition;
+                        // Check if the GameObject has a MatrixMovement component
+                        MatrixMovement matrixMovement = carAgent.GetComponent<MatrixMovement>();
+                        if (matrixMovement != null)
+                        {
+                            matrixMovement.DeleteCar();
+                            agents.Remove(key);
+                        }
                     }
-                    else
-                    {
-                        prevPositions[agent.id] = newAgentPosition;
-                        agents[agent.id] = Instantiate(agentPrefab, newAgentPosition, Quaternion.identity);
-                    }
+                }
             }
-
             updated = true;
             if(!started) started = true;
         }
@@ -263,14 +281,19 @@ public class AgentController : MonoBehaviour
             Debug.Log(www.error);
         else 
         {
-            trafficLightData = JsonUtility.FromJson<AgentsData>(www.downloadHandler.text);
+            streetLightData = JsonUtility.FromJson<StreetLightsData>(www.downloadHandler.text);
 
-            Debug.Log(trafficLightData.positions);
-
-            foreach(AgentData trafficLight in trafficLightData.positions)
+            foreach(StreetLightData trafficLight in streetLightData.positions)
             {
-                Instantiate(trafficlightPrefab, new Vector3(trafficLight.x, trafficLight.y, trafficLight.z), Quaternion.identity);
-                Instantiate(roadPrefab, new Vector3(trafficLight.x, trafficLight.y, trafficLight.z), Quaternion.identity);
+                if (!streetLights.ContainsKey(trafficLight.id))
+                {
+                    streetLights[trafficLight.id] = Instantiate(trafficlightPrefab, new Vector3(trafficLight.x, trafficLight.y, trafficLight.z), Quaternion.identity);
+                    Instantiate(roadPrefab, new Vector3(trafficLight.x, trafficLight.y, trafficLight.z), Quaternion.identity);
+                }
+                else
+                {
+                    streetLights[trafficLight.id].GetComponent<StreetLight>().SetState(trafficLight.state);
+                }
             }
         }
     }
@@ -285,9 +308,6 @@ public class AgentController : MonoBehaviour
         else 
         {
             roadData = JsonUtility.FromJson<AgentsData>(www.downloadHandler.text);
-
-            Debug.Log(roadData.positions);
-
             foreach(AgentData road in roadData.positions)
             {
                 Instantiate(roadPrefab, new Vector3(road.x, road.y, road.z), Quaternion.identity);
@@ -305,9 +325,6 @@ public class AgentController : MonoBehaviour
         else 
         {
             destinationData = JsonUtility.FromJson<AgentsData>(www.downloadHandler.text);
-
-            Debug.Log(destinationData.positions);
-
             foreach(AgentData destination in destinationData.positions)
             {
                 Instantiate(destinationPrefab, new Vector3(destination.x,destination.y,destination.z), Quaternion.identity);

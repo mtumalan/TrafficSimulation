@@ -5,8 +5,7 @@ using UnityEngine;
 
 public class MatrixMovement : MonoBehaviour
 {
-    [Header("Car Movement")]
-    [SerializeField] Vector3 speed;
+    [Header("Car")]
     [SerializeField] Vector3 carScale;
 
     [Header("Wheels")]
@@ -17,8 +16,6 @@ public class MatrixMovement : MonoBehaviour
     [Header("Movement Interpolation")]
     [SerializeField] Vector3 StartPosition;
     [SerializeField] Vector3 StopPosition;
-    [SerializeField] float MotionTime;
-    [SerializeField] List<Vector3> Waypoints;
 
     Mesh mesh;
     Vector3[] baseVertices;
@@ -52,29 +49,48 @@ public class MatrixMovement : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update(){
-        CarTransform(CarT());
-        for (int i = 0; i < wheelObjects.Count; i++){
-            WheelTransform(WheelT(CarT(), i), i);
+    public void SetNewTarget(Vector3 newTarget, float duration)
+    {
+        if(!this.StopPosition.Equals(newTarget))
+        {
+            this.StartPosition = this.StopPosition;
+            this.StopPosition = newTarget;
         }
     }
 
-    Matrix4x4 CarT(){
-        Matrix4x4 moveObject = HW_Transforms.TranslationMat(speed.x * Time.time,
-                                                            speed.y * Time.time,
-                                                            speed.z * Time.time);
-        if (speed.x != 0){
-            float angle = Mathf.Atan2(-speed.x, speed.z) * Mathf.Rad2Deg;
+    public void SetMovement(float dt){
+        dt = Mathf.Clamp(dt, 0, 1);
+        Vector3 intPosition = Vector3.Lerp(StartPosition, StopPosition, dt);
+
+        if (dt >= 1)
+        {
+            this.StartPosition = this.StopPosition;
+        }
+        CarTransform(CarT(intPosition));
+        for (int i = 0; i < wheelObjects.Count; i++)
+        {
+            WheelTransform(WheelT(CarT(intPosition), i), i);
+        }
+    }
+
+    Matrix4x4 CarT(Vector3 position){
+        Matrix4x4 moveObject = HW_Transforms.TranslationMat(position.x * Time.time,
+                                                            position.y * Time.time,
+                                                            position.z * Time.time);
+
+        Matrix4x4 scale = HW_Transforms.ScaleMat(carScale.x, carScale.y, carScale.z);
+        if (position.x != 0){
+            float angle = Mathf.Atan2(-position.x, position.z) * Mathf.Rad2Deg;
             Matrix4x4 rotate = HW_Transforms.RotateMat(angle, AXIS.Y);
-            Matrix4x4 composite = moveObject * rotate;
+            Matrix4x4 composite = moveObject * rotate* scale;
             return composite;
         }
         else{
-            Matrix4x4 composite = moveObject;
+            Matrix4x4 composite = moveObject * scale;
             return composite;
         }
     }
+
     Matrix4x4 WheelT(Matrix4x4 carComposite, int wheelIndex)
     {
         Matrix4x4 scale = HW_Transforms.ScaleMat(wheelScale.x, wheelScale.y, wheelScale.z);

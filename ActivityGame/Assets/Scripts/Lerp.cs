@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Lerp : MonoBehaviour
 {
+    [Header("Lerp")]
     [SerializeField] Vector3 startPos;
     [SerializeField] Vector3 endPos;
     [Range(0.0f, 1.0f)]

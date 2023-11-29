@@ -182,7 +182,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 50
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -208,13 +208,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 136675311}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.42261827, y: 0, z: 0, w: 0.9063079}
-  m_LocalPosition: {x: 12, y: 10, z: -1.5}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 12, y: 27, z: 12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 50, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &395527429
 GameObject:
   m_ObjectHideFlags: 0
@@ -342,21 +342,21 @@ MonoBehaviour:
     positions: []
   obstacleData:
     positions: []
-  trafficLightData:
-    positions: []
   roadData:
     positions: []
   destinationData:
     positions: []
-  agentPrefab: {fileID: 993549348249905, guid: 563375cb179ab4d4d8c0ce2bfc651964, type: 3}
+  streetLightData:
+    positions: []
+  agentPrefab: {fileID: 3289190296570393190, guid: 0895e3dee45398c46a099072b595c483, type: 3}
   obstaclePrefab: {fileID: 33555395739272859, guid: 10a584233fb38a918af771ddce837268, type: 3}
-  trafficlightPrefab: {fileID: 8102729382312259521, guid: ec03db3fda9c46458bf4fb4f61cc11bd, type: 3}
-  roadPrefab: {fileID: 3240343348373693069, guid: 646fc54ff3078ce94bbdbd0f0d4c4a05, type: 3}
-  destinationPrefab: {fileID: 919132149155446097, guid: 24378c2376976e955822e95f3a78bd78, type: 3}
+  trafficlightPrefab: {fileID: 9113958222592981184, guid: 2f9f087570003be488987450aa6990e2, type: 3}
+  roadPrefab: {fileID: 1147631235290045370, guid: fad549e58b8a0b341b5a1f33387baaff, type: 3}
+  destinationPrefab: {fileID: 961990229689801968, guid: 0870e23a47df89e468e8af19c065fce0, type: 3}
   NAgents: 5
   width: 25
   height: 25
-  timeToUpdate: 5
+  timeToUpdate: 1
 --- !u!4 &685606481
 Transform:
   m_ObjectHideFlags: 0

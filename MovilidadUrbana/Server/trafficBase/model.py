@@ -21,7 +21,7 @@ class CityModel(Model):
         self.traffic_lights = []
 
         # Load the map file. The map file is a text file where each character represents an agent.
-        with open("city_files/2022_base.txt") as baseFile:#('MovilidadUrbana/Server/trafficBase/city_files/2022_base.txt') as baseFile:
+        with open("city_files/2023_base.txt") as baseFile:#('MovilidadUrbana/Server/trafficBase/city_files/2022_base.txt') as baseFile:
             lines = baseFile.readlines()
             self.width = len(lines[0])-1
             self.height = len(lines)
@@ -97,6 +97,6 @@ class CityModel(Model):
         self.step_count += 1 # Increment the step count
         if self.step_count == 1:
             self.create_car() # Create cars at the beginning of the simulation
-        if self.step_count % 10 == 0:
+        if self.step_count % 4 == 0:
             self.create_car()  # Create new cars every 10 steps
         self.schedule.step()

@@ -133,9 +133,8 @@ public class AgentController : MonoBehaviour
             foreach(var agent in currPositions)
             {
                 Vector3 currentPosition = agent.Value;
-                Vector3 previousPosition = prevPositions[agent.Key];
                 if(agents.ContainsKey(agent.Key)){
-                agents[agent.Key].GetComponent<MatrixMovement>().SetMovement(previousPosition, currentPosition, timeToUpdate);
+                agents[agent.Key].GetComponent<MatrixMovement>().SetMovement(currentPosition, timeToUpdate);
                 }
                 
             }

@@ -54,11 +54,11 @@ public class MatrixMovement : MonoBehaviour
         }
     }
 
-    Vector3 SetNewTarget(Vector3 currentPosition, Vector3 newTarget)
+    Vector3 SetNewTarget(Vector3 newTarget)
     {
         if(!this.stopPosition.Equals(newTarget))
         {
-            startPosition = currentPosition;
+            startPosition = stopPosition;
             stopPosition = newTarget;
             dt = Mathf.Clamp(dt, 0, 1);
             Vector3 intPosition = Vector3.Lerp(startPosition, stopPosition, dt);
@@ -89,8 +89,8 @@ public class MatrixMovement : MonoBehaviour
         }
     }
 
-    public void SetMovement(Vector3 currentPosition, Vector3 newTarget, float movementTime){
-        Vector3 newPosition = SetNewTarget(currentPosition, newTarget);
+    public void SetMovement(Vector3 newTarget, float movementTime){
+        Vector3 newPosition = SetNewTarget(newTarget);
         this.movementTime = movementTime;
         CarTransform(CarT(newPosition));
         for (int i = 0; i < wheelObjects.Count; i++)

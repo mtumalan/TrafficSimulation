@@ -176,6 +176,7 @@ class Car(Agent):
                 if next_pos == self.destination: # If the destination is reached,
                     print(f"Car {self.unique_id} reached destination {self.destination}") 
                     self.model.remove_car(self) # Remove the car from the model
+                    self.model.car_removed = self.model.car_removed + 1
             else: # If the next position is None,
                 print("No valid next position found.") 
     def avoid_collision(self,nextCar):

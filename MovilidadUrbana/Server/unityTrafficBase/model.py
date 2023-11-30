@@ -4,6 +4,7 @@ from mesa.space import MultiGrid
 from agent import *
 import json
 import os
+import requests
 
 class CityModel(Model):
     """
@@ -19,6 +20,7 @@ class CityModel(Model):
         dataDictionary = json.load(open(mapAbsPath))
 
         self.traffic_lights = []
+        self.car_removed = 0
 
         # Load the map file. The map file is a text file where each character represents an agent.
         with open('MovilidadUrbana/Server/trafficBase/city_files/2023_base.txt') as baseFile:
@@ -91,12 +93,35 @@ class CityModel(Model):
         self.schedule.remove(agent) # Remove the agent from the scheduler
         self.grid.remove_agent(agent) # Remove the agent from the grid
 
+    def postCar(self):
+        url = "http://52.1.3.19:8585/api/" #http://52.1.3.19:8585/api/validate_attempt
+        endpoint = "attempts" #"validate_attempt"
+
+        data = {
+            "year" : 2023,
+            "classroom" : 301,
+            "name" : "Equipo 11: ",
+            "num_cars": self.car_removed
+        }
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(url+endpoint, data=json.dumps(data), headers=headers)
+        print(data)
+        print("Request " + "successful" if response.status_code == 200 else "failed", "Status code:", response.status_code)
+        print("Response:", response.json())
 
     def step(self):
         '''Advance the model by one step.'''
         self.step_count += 1 # Increment the step count
+        print(self.step_count)
         if self.step_count == 1:
             self.create_car() # Create cars at the beginning of the simulation
         if self.step_count % 10 == 0:
             self.create_car()  # Create new cars every 10 steps
+        if self.step_count % 100 == 0:
+            self.postCar() #Postea los carros que llegaron a su destino
+
         self.schedule.step()

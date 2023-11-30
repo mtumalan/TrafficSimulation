@@ -25,6 +25,9 @@ public class MatrixMovement : MonoBehaviour
     List<Vector3[]> newWheelVertices;
 
     private List<GameObject> wheelObjects = new List<GameObject>();
+    private float dt = 0;
+    private float elapsedTime = 0;
+    private float movementTime = 0;
 
     void Start()
     {
@@ -34,6 +37,8 @@ public class MatrixMovement : MonoBehaviour
         wheelMesh = new List<Mesh>();
         baseWheelVertices = new List<Vector3[]>();
         newWheelVertices = new List<Vector3[]>();
+
+        elapsedTime = movementTime;
 
         foreach (Vector3 wheelPosition in wheels)
         {
@@ -49,7 +54,7 @@ public class MatrixMovement : MonoBehaviour
         }
     }
 
-    Vector3 SetNewTarget(Vector3 currentPosition, Vector3 newTarget, float dt)
+    Vector3 SetNewTarget(Vector3 currentPosition, Vector3 newTarget)
     {
         if(!this.stopPosition.Equals(newTarget))
         {
@@ -72,11 +77,25 @@ public class MatrixMovement : MonoBehaviour
         Destroy(this.gameObject);
     }
 
-    public void SetMovement(Vector3 currentPosition, Vector3 newTarget, float dt){
-        CarTransform(CarT(SetNewTarget(currentPosition, newTarget, dt)));
+    void Update(){
+        if(elapsedTime < 0)
+        {
+            elapsedTime = movementTime;
+
+        }else
+        {
+            elapsedTime -= Time.deltaTime;
+            dt = 1.0f - (elapsedTime / movementTime);
+        }
+    }
+
+    public void SetMovement(Vector3 currentPosition, Vector3 newTarget, float movementTime){
+        Vector3 newPosition = SetNewTarget(currentPosition, newTarget);
+        this.movementTime = movementTime;
+        CarTransform(CarT(newPosition));
         for (int i = 0; i < wheelObjects.Count; i++)
         {
-            WheelTransform(WheelT(CarT(SetNewTarget(currentPosition, newTarget, dt)), i), i);
+            WheelTransform(WheelT(CarT(newPosition), i), i);
         }
     }
 
@@ -90,7 +109,7 @@ public class MatrixMovement : MonoBehaviour
         if (position.x != 0)
         {
             float angle = Mathf.Atan2(stopPosition.x - startPosition.x, stopPosition.z - startPosition.z) * Mathf.Rad2Deg;
-            Matrix4x4 rotate = HW_Transforms.RotateMat(-angle, AXIS.Y);
+            Matrix4x4 rotate = HW_Transforms.RotateMat(angle, AXIS.Y);
             Matrix4x4 composite = moveObject * rotate * scale;
             return composite;
         }
@@ -125,6 +144,7 @@ public class MatrixMovement : MonoBehaviour
         }
         mesh.vertices = newVertices;
         mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
     }
 
     void WheelTransform(Matrix4x4 wheelComposite, int wheelIndex)
@@ -140,5 +160,6 @@ public class MatrixMovement : MonoBehaviour
 
         wheelMesh[wheelIndex].vertices = newWheelVertices[wheelIndex];
         wheelMesh[wheelIndex].RecalculateNormals();
+        wheelMesh[wheelIndex].RecalculateBounds();
     }
 }

@@ -58,7 +58,9 @@ class Car(Agent):
             unique_id: The agent's ID
             model: Model reference for the agent
             spawn: Where the agent is spawned
-            destination: Where the agent is going
+            destination: Where the agent is 
+            path: The path the agent will take
+            greediness: The greediness of the agent that determines the chance of passing through a red light
         """
         super().__init__(unique_id, model)
         self.destination = destination
@@ -134,41 +136,40 @@ class Car(Agent):
         """ 
         Determines if the agent can move in the direction that was chosen
         """        
-        descuido = random.randint(0, 200) < self.greediness
+        descuido = random.randint(0, 200) < self.greediness #descuido choque
         if self.path and self.pos in self.path: # If the path is set and the current position is in the path,
-            next_pos = self.path.get(self.pos)
-            if isinstance(self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]], list):
+            next_pos = self.path.get(self.pos) # Get the next position
+            if isinstance(self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]], list): # Verifica si la celda contiene una lista
                 # Itera sobre los agentes en la lista
-                for agent_in_cell in self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]]:
-                    if type(agent_in_cell) == Car: #and (random.randint(0, 500) < self.greediness) == False: #descuido choque
-                        next_pos = self.pos
-                    elif type(agent_in_cell) == Traffic_Light and descuido == False:
-                        if agent_in_cell.state == False:
-                            next_pos = self.pos
-                        else:
+                for agent_in_cell in self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]]: # Verifica si el agente es un carro
+                    if type(agent_in_cell) == Car: # Verifica si el agente es un carro
+                        next_pos = self.pos # Se queda en la misma posición
+                    elif type(agent_in_cell) == Traffic_Light and descuido == False: # Verifica si el agente es un semáforo
+                        if agent_in_cell.state == False: # Verifica si el semáforo está en rojo
+                            next_pos = self.pos # Se queda en la misma posición
+                        else: # Si el semáforo está en verde
                             next_pos = self.path.get(self.pos) # Get the next position
-                    else:
+                    else: # Si el agente no es un carro ni un semáforo
                         next_pos = self.path.get(self.pos) # Get the next position
-            next_next_pos = self.path.get(next_pos)
-            if next_next_pos is not None and descuido == False:
-                road_direction_at_pos = "beg"
-                road_direction_at_next_next_pos = "beg"
-                if isinstance(self.model.grid[self.pos[0]][self.pos[1]], list):
+            next_next_pos = self.path.get(next_pos) # Get the next next position
+            if next_next_pos is not None and descuido == False: # If the next next position is not None,
+                road_direction_at_pos = "beg" # Initialize the road direction at the current position
+                road_direction_at_next_next_pos = "beg" # Initialize the road direction at the next next position
+                if isinstance(self.model.grid[self.pos[0]][self.pos[1]], list): # Verifica si la celda contiene una lista
                     # Itera sobre los agentes en la lista
-                    for agent_in_cell in self.model.grid[self.pos[0]][self.pos[1]]:
+                    for agent_in_cell in self.model.grid[self.pos[0]][self.pos[1]]: # Verifica si el agente es un carro
                         if type(agent_in_cell) == Road:
-                            road_direction_at_pos = agent_in_cell.direction
-                if isinstance(self.model.grid[next_next_pos[0]][next_next_pos[1]], list):
+                            road_direction_at_pos = agent_in_cell.direction # Get the road direction at the current position
+                if isinstance(self.model.grid[next_next_pos[0]][next_next_pos[1]], list): # Verifica si la celda contiene una lista
                     # Itera sobre los agentes en la lista
                     for agent_in_cell in self.model.grid[next_next_pos[0]][next_next_pos[1]]:
-                        if type(agent_in_cell) == Road:
-                            road_direction_at_next_next_pos = agent_in_cell.direction
+                        if type(agent_in_cell) == Road: 
+                            road_direction_at_next_next_pos = agent_in_cell.direction # Get the road direction at the next next position
                         if type(agent_in_cell) == Car:
-                            road_direction_at_pos = "no"
-                
+                            road_direction_at_pos = "no" # Get the road direction at the current position
                 if self.needs_lane_change(self.pos, next_next_pos, road_direction_at_pos, road_direction_at_next_next_pos):
                     #print(f"Car {self.unique_id} is changing lanes from {self.pos} to {next_next_pos}")
-                    next_pos = next_next_pos
+                    next_pos = next_next_pos # Change the next position to the next next position
             """
             if isinstance(self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]], list):
                 # Itera sobre los agentes en la lista
@@ -179,21 +180,21 @@ class Car(Agent):
                         print(self.pos)
                         print(next_pos)
             """
-            if self.pos == next_pos:
-                self.cont_stay = self.cont_stay + 1
-            if self.cont_stay > 2:
-                path = self.path
-                self.initialize_path(1)
-                if self.path == {}:
-                    self.path = path
-                self.cont_stay = 0
+            if self.pos == next_pos: # If the next position is the same as the current position,
+                self.cont_stay = self.cont_stay + 1 # Increment the counter
+            if self.cont_stay > 2: # If the counter is greater than 2,
+                path = self.path # Save the path
+                self.initialize_path(1) # Initialize the path
+                if self.path == {}: # If the path is empty,
+                    self.path = path # Restore the path
+                self.cont_stay = 0 # Reset the counter
             if next_pos is not None: # If the next position is not None,
                 self.model.grid.move_agent(self, next_pos) # Move the agent to the next position
                 self.direction = self.get_direction(self.pos, next_pos) # Get the direction the agent should face
                 if next_pos == self.destination: # If the destination is reached,
                     #print(f"Car {self.unique_id} reached destination {self.destination}") 
                     self.model.remove_car(self) # Remove the car from the model
-                    self.model.car_removed = self.model.car_removed + 1
+                    self.model.car_removed = self.model.car_removed + 1 # Increment the number of cars removed
             else: # If the next position is None,
                 print("No valid next position found.") 
 
@@ -201,26 +202,26 @@ class Car(Agent):
         """
         Verifies if a lane change is necessary based on the road directions at the current and next_next positions.
         """
-        if road_direction_at_pos == road_direction_at_next_next_pos or road_direction_at_pos == "beg":
+        if road_direction_at_pos == road_direction_at_next_next_pos or road_direction_at_pos == "beg": # If the road direction at the current position is the same as the road direction at the next next position,
             if ( road_direction_at_next_next_pos == "Up" or road_direction_at_next_next_pos == "Down" ) and (next_next_pos[0] - current_pos[0]) != 0:
-                return True
+                return True # A lane change is needed
             if ( road_direction_at_next_next_pos == "Left" or road_direction_at_next_next_pos == "Right" ) and (next_next_pos[1] - current_pos[1]) != 0:
-                return True
+                return True # A lane change is needed
 
         # If neither x nor y changed, no lane change is needed
         return False
 
-    def is_front_valid(self, next):
-        neighbor_info = []
-        cell_content = self.model.grid[next[0]][next[1]]
+    def is_front_valid(self, next): # Verifica si la celda contiene una lista
+        neighbor_info = [] # Lista de tuplas con la posición y el tipo de agente
+        cell_content = self.model.grid[next[0]][next[1]] # Contenido de la celda
         # Verifica si la celda contiene una lista
-        if isinstance(cell_content, list):
+        if isinstance(cell_content, list): # Verifica si la celda contiene una lista
             # Itera sobre los agentes en la lista
-            for agent_in_cell in cell_content:
+            for agent_in_cell in cell_content: # Verifica si el agente es un carro
 
                 # Agrega una tupla a la lista con la posición y el tipo de agente
-                neighbor_info.append(((next[0], next[1]), type(agent_in_cell)))
-        return 1
+                neighbor_info.append(((next[0], next[1]), type(agent_in_cell))) # Verifica si el agente es un carro
+        return 1 # Retorna 1 si la celda no contiene una lista
         
     def get_direction(self, current_pos, next_pos):
         """
@@ -269,22 +270,22 @@ class Traffic_Light(Agent):
             state: Whether the traffic light is green or red
             timeToChange: After how many step should the traffic light change color 
         """
-        self.state = state
-        self.timeToChange = timeToChange
+        self.state = state # False = red, True = green
+        self.timeToChange = timeToChange # After how many step should the traffic light change color
 
     def step(self):
         """ 
         To change the state (green or red) of the traffic light in case you consider the time to change of each traffic light.
         """
-        if self.model.schedule.steps % self.timeToChange == 0:
-            self.state = not self.state
+        if self.model.schedule.steps % self.timeToChange == 0: # If the number of steps is a multiple of the time to change,
+            self.state = not self.state # Change the state of the traffic light
 
 class Destination(Agent):
     """
     Destination agent. Where each car should go.
     """
-    def __init__(self, unique_id, model):
-        super().__init__(unique_id, model)
+    def __init__(self, unique_id, model): 
+        super().__init__(unique_id, model) 
 
     def step(self):
         pass
@@ -312,7 +313,7 @@ class Road(Agent):
             direction: Direction where the cars can move
         """
         super().__init__(unique_id, model)
-        self.direction = direction
+        self.direction = direction 
 
     def step(self):
         pass

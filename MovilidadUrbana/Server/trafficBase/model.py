@@ -17,45 +17,45 @@ class CityModel(Model):
 #C:\Users\carlo\OneDrive\Escritorio\2023\ITESM\MULTIAGENTES\PROYECTOR\activities_TC2008B\MovilidadUrbana\Server\trafficBase\city_files
         # Load the map dictionary. The dictionary maps the characters in the map file to the corresponding agent.
         mapAbsPath = os.path.abspath("city_files/mapDictionary.json")#("MovilidadUrbana/Server/trafficBase/city_files/mapDictionary.json")
-        dataDictionary = json.load(open(mapAbsPath))
+        dataDictionary = json.load(open(mapAbsPath)) # Load the map dictionary. The dictionary maps the characters in the map file to the corresponding agent.
 
-        self.traffic_lights = []
-        self.car_removed = 0
+        self.traffic_lights = [] # List of all the traffic lights
+        self.car_removed = 0 # Number of cars that have reached their destination
 
         # Load the map file. The map file is a text file where each character represents an agent.
         with open("city_files/2023_base.txt") as baseFile:#('MovilidadUrbana/Server/trafficBase/city_files/2022_base.txt') as baseFile:
-            lines = baseFile.readlines()
-            self.width = len(lines[0])-1
-            self.height = len(lines)
+            lines = baseFile.readlines() # Read the lines of the map file
+            self.width = len(lines[0])-1 # Width of the map
+            self.height = len(lines) # Height of the map
 
-            self.grid = MultiGrid(self.width, self.height, torus = False) 
-            self.schedule = RandomActivation(self)
+            self.grid = MultiGrid(self.width, self.height, torus = False) # Create a grid with the width and height of the map
+            self.schedule = RandomActivation(self) # Create a random activation scheduler
 
             # Goes through each character in the map file and creates the corresponding agent.
-            for r, row in enumerate(lines):
-                for c, col in enumerate(row):
-                    if col in ["v", "^", ">", "<"]:
-                        agent = Road(f"r_{r*self.width+c}", self, dataDictionary[col])
-                        self.grid.place_agent(agent, (c, self.height - r - 1))
+            for r, row in enumerate(lines): # Iterate through the lines of the map file
+                for c, col in enumerate(row): # Iterate through the characters of the line
+                    if col in ["v", "^", ">", "<"]: # If the character is a road,
+                        agent = Road(f"r_{r*self.width+c}", self, dataDictionary[col]) # Create a road agent
+                        self.grid.place_agent(agent, (c, self.height - r - 1)) # Place the agent on the grid
 
-                    elif col in ["S", "s"]:
-                        agent = Traffic_Light(f"tl_{r*self.width+c}", self, False if col == "S" else True, int(dataDictionary[col]))
-                        self.grid.place_agent(agent, (c, self.height - r - 1))
-                        self.schedule.add(agent)
-                        self.traffic_lights.append(agent)
+                    elif col in ["S", "s"]: # If the character is a traffic light,
+                        agent = Traffic_Light(f"tl_{r*self.width+c}", self, False if col == "S" else True, int(dataDictionary[col])) # Create a traffic light agent
+                        self.grid.place_agent(agent, (c, self.height - r - 1)) # Place the agent on the grid
+                        self.schedule.add(agent) # Add the agent to the scheduler
+                        self.traffic_lights.append(agent) # Add the agent to the list of traffic lights
 
-                    elif col == "#":
-                        agent = Obstacle(f"ob_{r*self.width+c}", self)
-                        self.grid.place_agent(agent, (c, self.height - r - 1))
+                    elif col == "#": # If the character is an obstacle,
+                        agent = Obstacle(f"ob_{r*self.width+c}", self) # Create an obstacle agent
+                        self.grid.place_agent(agent, (c, self.height - r - 1)) # Place the agent on the grid
 
-                    elif col == "D":
-                        agent = Destination(f"d_{r*self.width+c}", self)
-                        self.grid.place_agent(agent, (c, self.height - r - 1))
-                        self.schedule.add(agent)
+                    elif col == "D": # If the character is a destination,
+                        agent = Destination(f"d_{r*self.width+c}", self) # Create a destination agent
+                        self.grid.place_agent(agent, (c, self.height - r - 1)) # Place the agent on the grid
+                        self.schedule.add(agent) # Add the agent to the scheduler
 
-        self.num_agents = N
-        self.running = True
-        self.step_count = 0
+        self.num_agents = N # Number of agents in the simulation
+        self.running = True # Whether the simulation is running or not
+        self.step_count = 0 # Number of steps in the simulation
         
     def set_destination(self):
         """
@@ -76,7 +76,7 @@ class CityModel(Model):
         for corner in corners: # Iterate through all the corners
             #print(f"Placing car at: {corner}")
             if 0 <= corner[0] < self.height and 0 <= corner[1] < self.width: # If the corner is valid,
-                cell_contents = self.grid.get_cell_list_contents([corner])
+                cell_contents = self.grid.get_cell_list_contents([corner]) # Get the contents of the cell
                 if not any(isinstance(agent, Car) for agent in cell_contents):
                     destination = self.set_destination()  # Set the destination of the car
                     agent = Car(f"Car_{self.num_agents + 1}", self, corner, destination)  # Create a unique ID for the car, and pass the model and the destination
@@ -87,7 +87,7 @@ class CityModel(Model):
                 else:
                     print(f"There is already a car in corner: {corner}")
             else: # If the corner is invalid,
-                print(f"Invalid corner: {corner}")
+                print(f"Invalid corner: {corner}") # Print the invalid corner
     
     def remove_car(self, agent):
         """

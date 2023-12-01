@@ -4,6 +4,7 @@ from mesa.space import MultiGrid
 from agent import *
 import json
 import os
+import requests
 
 class CityModel(Model):
     """ 
@@ -19,6 +20,7 @@ class CityModel(Model):
         dataDictionary = json.load(open(mapAbsPath))
 
         self.traffic_lights = []
+        self.car_removed = 0
 
         # Load the map file. The map file is a text file where each character represents an agent.
         with open("city_files/2023_base.txt") as baseFile:#('MovilidadUrbana/Server/trafficBase/city_files/2022_base.txt') as baseFile:
@@ -72,15 +74,18 @@ class CityModel(Model):
         """
         corners = [(0, 0), (self.width-1, 0), (0, self.height-2), (self.width-1, self.height-2)] # List of all the corners of the grid
         for corner in corners: # Iterate through all the corners
-            print(f"Placing car at: {corner}")
+            #print(f"Placing car at: {corner}")
             if 0 <= corner[0] < self.height and 0 <= corner[1] < self.width: # If the corner is valid,
-                destination = self.set_destination()  # Set the destination of the car
-                #print(f"Destination: {destination}")
-                agent = Car(f"Car_{self.num_agents + 1}", self, corner, destination)  # Create a unique ID for the car, and pass the model and the destination
-                self.grid.place_agent(agent, corner)  # Place the car on the grid
-                agent.initialize_path()  # Initialize the path after placing the car
-                self.schedule.add(agent)  # Add the car to the scheduler
-                self.num_agents += 1  # Increment the number of agents
+                cell_contents = self.grid.get_cell_list_contents([corner])
+                if not any(isinstance(agent, Car) for agent in cell_contents):
+                    destination = self.set_destination()  # Set the destination of the car
+                    agent = Car(f"Car_{self.num_agents + 1}", self, corner, destination)  # Create a unique ID for the car, and pass the model and the destination
+                    self.grid.place_agent(agent, corner)  # Place the car on the grid
+                    agent.initialize_path(0)  # Initialize the path after placing the car
+                    self.schedule.add(agent)  # Add the car to the scheduler
+                    self.num_agents += 1  # Increment the number of agents
+                else:
+                    print(f"There is already a car in corner: {corner}")
             else: # If the corner is invalid,
                 print(f"Invalid corner: {corner}")
     
@@ -90,13 +95,34 @@ class CityModel(Model):
         """
         self.schedule.remove(agent) # Remove the agent from the scheduler
         self.grid.remove_agent(agent) # Remove the agent from the grid
+    def postCar(self):
+        url = "http://52.1.3.19:8585/api/attempts" #http://52.1.3.19:8585/api/validate_attempt
 
+        data = {
+            "year" : 2023,
+            "classroom" : 301,
+            "name" : "Equipo 11: carlos y mau mesa",
+            "num_cars": self.car_removed
+        }
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(url, data=json.dumps(data), headers=headers)
+        print(data)
+        print("Request " + "successful" if response.status_code == 200 else "failed", "Status code:", response.status_code)
+        print("Response:", response.json())
 
     def step(self):
         '''Advance the model by one step.'''
         self.step_count += 1 # Increment the step count
+        #print("step: ", self.step_count)
         if self.step_count == 1:
             self.create_car() # Create cars at the beginning of the simulation
-        if self.step_count % 4 == 0:
+        if self.step_count % 3 == 0:
             self.create_car()  # Create new cars every 10 steps
+        if self.step_count % 100 == 0:
+            print("CAR REMOVED", self.car_removed)
+            #self.postCar() #Postea los carros que llegaron a su destino
         self.schedule.step()

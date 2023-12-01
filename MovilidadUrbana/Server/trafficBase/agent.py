@@ -12,7 +12,7 @@ def a_star_search(graph, start, goal, pathclear):
     """
     Finds the shortest path between two cells using A*.
     """
-    print(f"Starting A* search from {start} to {goal}")
+    #print(f"Starting A* search from {start} to {goal}")
     obstacles = [] # Priority queue
     heapq.heappush(obstacles, (0, start)) # Add start cell to queue
     wherefrom = {start: None} # Dictionary to keep track of where the path came from
@@ -41,10 +41,10 @@ def a_star_search(graph, start, goal, pathclear):
             path[prev] = current  # Map predecessor to current position
             current = prev # Update the current cell
         else: # If the current cell is not in the path,
-            print("No path found in A* search")
+            #print("No path found in A* search")
             return {}  # Return empty path if no path is found
 
-    print(f"Path found: {path}")
+    #print(f"Path found: {path}")
     return path # Return the path
 
 class Car(Agent):
@@ -65,14 +65,15 @@ class Car(Agent):
         self.spawn = spawn
         self.path = None
         self.greediness = random.randint(0, 100)
+        self.cont_stay = 0
         #self.status = False
         #self.stepsCrash = 0
     
-    def initialize_path(self):
+    def initialize_path(self,type):
         """
         Initializes the path for the agent.
         """
-        self.path = self.find_path()
+        self.path = self.find_path(type)
 
     def is_direction_valid(self, current_pos, next_pos, road_direction):
         """
@@ -93,7 +94,7 @@ class Car(Agent):
 
         return False  # If the road direction is invalid, return False
 
-    def find_path(self):
+    def find_path(self, type):
         """
         Finds the path from spawn to destination.
         """
@@ -106,6 +107,11 @@ class Car(Agent):
                 if any(isinstance(agent, Obstacle) for agent in cell_contents):
                     #print(f"Obstacle found at {next}")  # Debug
                     return False
+                
+                 # Check if the next cell contains an obstacle
+                if any(isinstance(agent, Car) for agent in cell_contents) and type == 1:
+                    #print(f"Obstacle found at {next}")  # Debug
+                    return False
 
                 # Check if the next cell is a road, traffic light, or destination
                 if any(isinstance(agent, (Road, Traffic_Light, Destination)) for agent in cell_contents):
@@ -116,8 +122,11 @@ class Car(Agent):
                         return self.is_direction_valid(current, next, road.direction) # Check if the direction is valid
                     return True  # If it's a traffic light or destination, movement is allowed
                 return False  # Cell without road, traffic light, or destination is not valid
-            return a_star_search(self.model.grid, self.spawn, self.destination, pathclear) # Find the path
-        print("No destination set for Car, no path to find")  # in case the destination is not reachable or not able to be set
+            if type == 0:
+                return a_star_search(self.model.grid, self.spawn, self.destination, pathclear) # Find the path
+            elif type == 1:
+                return a_star_search(self.model.grid, self.pos, self.destination, pathclear) # Find the path
+        #print("No destination set for Car, no path to find")  # in case the destination is not reachable or not able to be set
         return None # If the destination is not set, return None
 
 
@@ -127,6 +136,7 @@ class Car(Agent):
         """        
         descuido = random.randint(0, 200) < self.greediness
         if self.path and self.pos in self.path: # If the path is set and the current position is in the path,
+            next_pos = self.path.get(self.pos)
             if isinstance(self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]], list):
                 # Itera sobre los agentes en la lista
                 for agent_in_cell in self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]]:
@@ -157,7 +167,7 @@ class Car(Agent):
                             road_direction_at_pos = "no"
                 
                 if self.needs_lane_change(self.pos, next_next_pos, road_direction_at_pos, road_direction_at_next_next_pos):
-                    print(f"Car {self.unique_id} is changing lanes from {self.pos} to {next_next_pos}")
+                    #print(f"Car {self.unique_id} is changing lanes from {self.pos} to {next_next_pos}")
                     next_pos = next_next_pos
             """
             if isinstance(self.model.grid[self.path.get(self.pos)[0]][self.path.get(self.pos)[1]], list):
@@ -169,46 +179,23 @@ class Car(Agent):
                         print(self.pos)
                         print(next_pos)
             """
-
+            if self.pos == next_pos:
+                self.cont_stay = self.cont_stay + 1
+            if self.cont_stay > 2:
+                path = self.path
+                self.initialize_path(1)
+                if self.path == {}:
+                    self.path = path
+                self.cont_stay = 0
             if next_pos is not None: # If the next position is not None,
                 self.model.grid.move_agent(self, next_pos) # Move the agent to the next position
                 self.direction = self.get_direction(self.pos, next_pos) # Get the direction the agent should face
                 if next_pos == self.destination: # If the destination is reached,
-                    print(f"Car {self.unique_id} reached destination {self.destination}") 
+                    #print(f"Car {self.unique_id} reached destination {self.destination}") 
                     self.model.remove_car(self) # Remove the car from the model
+                    self.model.car_removed = self.model.car_removed + 1
             else: # If the next position is None,
                 print("No valid next position found.") 
-    def avoid_collision(self,nextCar):
-        road_direction_at_next_pos = "beg"
-        if isinstance(self.model.grid[nextCar.pos[0]][nextCar.pos[1]], list):
-            # Itera sobre los agentes en la lista
-            for agent_in_cell in self.model.grid[nextCar.pos[0]][nextCar.pos[1]]:
-                if type(agent_in_cell) == Road:
-                    road_direction_at_next_pos = agent_in_cell.direction
-        print(road_direction_at_next_pos)
-        if ( road_direction_at_next_pos == "Up" or road_direction_at_next_pos == "Down" ):
-            if isinstance(self.model.grid[nextCar.pos[0]-1][nextCar.pos[1]], list):
-                # Itera sobre los agentes en la lista
-                for agent_in_cell in self.model.grid[nextCar.pos[0]-1][nextCar.pos[1]]:
-                    if type(agent_in_cell) == Road and agent_in_cell.direction == road_direction_at_next_pos:
-                        return (nextCar.pos[0]- 1,nextCar.pos[1])
-            if isinstance(self.model.grid[nextCar.pos[0]+1][nextCar.pos[1]], list):
-                # Itera sobre los agentes en la lista
-                for agent_in_cell in self.model.grid[nextCar.pos[0]+1][nextCar.pos[1]]:
-                    if type(agent_in_cell) == Road and agent_in_cell.direction == road_direction_at_next_pos:
-                        return (nextCar.pos[0]+1,nextCar.pos[1])
-        if ( road_direction_at_next_pos == "Left" or road_direction_at_next_pos == "Right" ):
-            if isinstance(self.model.grid[nextCar.pos[0]][nextCar.pos[1]-1], list):
-                # Itera sobre los agentes en la lista
-                for agent_in_cell in self.model.grid[nextCar.pos[0]][nextCar.pos[1]-1]:
-                    if type(agent_in_cell) == Road and agent_in_cell.direction == road_direction_at_next_pos:
-                        return (nextCar.pos[0],nextCar.pos[1]-1)
-            if isinstance(self.model.grid[nextCar.pos[0]][nextCar.pos[1]+1], list):
-                # Itera sobre los agentes en la lista
-                for agent_in_cell in self.model.grid[nextCar.pos[0]][nextCar.pos[1]+1]:
-                    if type(agent_in_cell) == Road and agent_in_cell.direction == road_direction_at_next_pos:
-                        return (nextCar.pos[0],nextCar.pos[1]+1)
-        
 
     def needs_lane_change(self,current_pos, next_next_pos, road_direction_at_pos, road_direction_at_next_next_pos):
         """
